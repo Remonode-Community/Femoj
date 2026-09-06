@@ -37,10 +37,12 @@ export default function ForgotPasswordPage() {
     if (result.success) {
       setSubmittedEmail(data.email);
       setIsSubmitted(true);
-      
+
       // Redirect to reset password page after 2 seconds
       setTimeout(() => {
-        router.push(`/auth/reset-password?email=${encodeURIComponent(data.email)}`);
+        router.push(
+          `/auth/reset-password?email=${encodeURIComponent(data.email)}`,
+        );
       }, 2000);
     } else if (result.errors) {
       const firstError = Object.values(result.errors)[0]?.[0];
@@ -88,7 +90,10 @@ export default function ForgotPasswordPage() {
               </div>
 
               {/* Form */}
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
                 <div>
                   <label htmlFor="email" className={labelClass}>
                     Email Address
@@ -118,7 +123,7 @@ export default function ForgotPasswordPage() {
                   disabled={isLoading || !form.formState.isValid}
                   whileHover={{ scale: 0.98 }}
                   whileTap={{ scale: 0.96 }}
-                  className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200"
+                  className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 cursor-pointer"
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -135,7 +140,7 @@ export default function ForgotPasswordPage() {
               <div className="mt-6 text-center">
                 <Link
                   href="/auth/login"
-                  className="inline-flex items-center gap-1 text-[13px] text-[#1a3fd4] hover:text-[#1631b6] font-medium transition-colors"
+                  className="inline-flex items-center gap-1 text-[13px] text-[#1a3fd4] hover:text-[#1631b6] font-medium transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Back to Login
@@ -162,7 +167,11 @@ export default function ForgotPasswordPage() {
               </h1>
               <p className="text-[13.5px] text-[#6b7280] mb-6">
                 We sent a password reset code to{" "}
-                <strong>{submittedEmail || resetPasswordEmail || form.getValues("email")}</strong>
+                <strong>
+                  {submittedEmail ||
+                    resetPasswordEmail ||
+                    form.getValues("email")}
+                </strong>
               </p>
 
               {/* Instructions */}
@@ -181,14 +190,19 @@ export default function ForgotPasswordPage() {
               {/* Info Box */}
               <div className="bg-[#fef3c7] border border-[#fcd34d] rounded-lg p-3.5 mb-6">
                 <p className="text-[12px] text-[#92400e]">
-                  💡 <strong>Tip:</strong> The OTP code is valid for 10 minutes. Don't share it with anyone.
+                  💡 <strong>Tip:</strong> The OTP code is valid for 10 minutes.
+                  Don't share it with anyone.
                 </p>
               </div>
 
               {/* Button */}
               <button
-                onClick={() => router.push(`/auth/reset-password?email=${encodeURIComponent(submittedEmail)}`)}
-                className="w-full h-11 bg-[#1a3fd4] hover:bg-[#1631b6] text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 flex items-center justify-center"
+                onClick={() =>
+                  router.push(
+                    `/auth/reset-password?email=${encodeURIComponent(submittedEmail)}`,
+                  )
+                }
+                className="w-full h-11 bg-[#1a3fd4] hover:bg-[#1631b6] text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 flex items-center justify-center cursor-pointer"
               >
                 Continue to Verify OTP
               </button>
@@ -199,7 +213,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="button"
                   onClick={() => setIsSubmitted(false)}
-                  className="text-[#1a3fd4] hover:text-[#1631b6] font-semibold"
+                  className="text-[#1a3fd4] hover:text-[#1631b6] font-semibold cursor-pointer"
                 >
                   Try again
                 </button>
