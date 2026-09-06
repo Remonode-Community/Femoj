@@ -362,7 +362,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={!s1.first_name || !s1.last_name || isLoading}
-                className="w-full h-[44px] mt-6 rounded-[10px] bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[14px] font-semibold transition-all"
+                className="w-full h-[44px] mt-6 rounded-[10px] bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[14px] font-semibold transition-all cursor-pointer"
               >
                 Continue
               </button>
@@ -445,14 +445,14 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="flex-1 h-[44px] rounded-[10px] border-[1.5px] border-[#e5e7eb] bg-white hover:bg-[#f9fafb] text-[14px] text-[#374151] font-semibold transition-all"
+                  className="flex-1 h-[44px] rounded-[10px] border-[1.5px] border-[#e5e7eb] bg-white hover:bg-[#f9fafb] text-[14px] text-[#374151] font-semibold transition-all cursor-pointer"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={!s2.email || !s2.phone_number || isLoading}
-                  className="flex-1 h-[44px] rounded-[10px] bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[14px] font-semibold transition-all"
+                  className="flex-1 h-[44px] rounded-[10px] bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[14px] font-semibold transition-all cursor-pointer"
                 >
                   Continue
                 </button>
@@ -589,7 +589,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="flex-1 h-[44px] rounded-[10px] border-[1.5px] border-[#e5e7eb] bg-white hover:bg-[#f9fafb] text-[14px] text-[#374151] font-semibold transition-all"
+                  className="flex-1 h-[44px] rounded-[10px] border-[1.5px] border-[#e5e7eb] bg-white hover:bg-[#f9fafb] text-[14px] text-[#374151] font-semibold transition-all cursor-pointer"
                 >
                   Back
                 </button>
@@ -601,7 +601,7 @@ export default function RegisterPage() {
                     isLoading ||
                     isSubmittingForm
                   }
-                  className="flex-1 h-[44px] rounded-[10px] bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[14px] font-semibold transition-all"
+                  className="flex-1 h-[44px] rounded-[10px] bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[14px] font-semibold transition-all cursor-pointer"
                 >
                   {isSubmittingForm ? "Creating..." : "Create Account"}
                 </button>
