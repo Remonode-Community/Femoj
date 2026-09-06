@@ -91,17 +91,17 @@ export default function DashboardPage() {
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex gap-3">
                   <Link
                     href="/dashboard/numbers?action=buy"
-                    className="inline-flex items-center gap-2 h-10 px-5 text-sm bg-white text-[#1a73e8] hover:bg-white/90 rounded-lg font-medium transition-colors"
+                    className="inline-flex items-center gap-2 h-10 px-4 md:px-5 text-sm bg-white text-[#1a73e8] hover:bg-white/90 rounded-lg font-medium transition-colors whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4" />
                     Buy Number
                   </Link>
                   <Link
                     href="/dashboard/wallet"
-                    className="inline-flex items-center gap-2 h-10 px-5 text-sm bg-white/20 text-white hover:bg-white/30 rounded-lg font-medium transition-colors backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 h-10 px-4 md:px-5 text-sm bg-white/20 text-white hover:bg-white/30 rounded-lg font-medium transition-colors backdrop-blur-sm whitespace-nowrap"
                   >
                     <CreditCard className="w-4 h-4" />
                     Buy Credits
