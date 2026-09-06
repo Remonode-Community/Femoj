@@ -38,7 +38,10 @@ export default function VerifyEmailPage() {
   // Handle OTP resend timer
   useEffect(() => {
     if (otpResendTimer > 0) {
-      const timer = setTimeout(() => setOtpResendTimer(otpResendTimer - 1), 1000);
+      const timer = setTimeout(
+        () => setOtpResendTimer(otpResendTimer - 1),
+        1000,
+      );
       return () => clearTimeout(timer);
     }
   }, [otpResendTimer]);
@@ -63,7 +66,7 @@ export default function VerifyEmailPage() {
     const result = await performVerifyEmail(data);
     if (result.success) {
       toast.success("Email verified!");
-      
+
       // If user came from login flow (has user but registrationEmail not set), go to dashboard
       // If user came from registration flow, go to login to login again
       setTimeout(() => {
@@ -132,7 +135,8 @@ export default function VerifyEmailPage() {
               placeholder="000000"
               maxLength={6}
               className={
-                inputClass + " text-center tracking-widest font-mono text-lg pl-4"
+                inputClass +
+                " text-center tracking-widest font-mono text-lg pl-4"
               }
               {...form.register("otp")}
             />
@@ -147,12 +151,10 @@ export default function VerifyEmailPage() {
           {/* Submit Button */}
           <motion.button
             type="submit"
-            disabled={
-              form.watch("otp").length !== 6 || isLoading
-            }
+            disabled={form.watch("otp").length !== 6 || isLoading}
             whileHover={{ scale: 0.98 }}
             whileTap={{ scale: 0.96 }}
-            className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200"
+            className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 cursor-pointer"
           >
             {isLoading ? "Verifying..." : "Verify Email"}
           </motion.button>
@@ -167,7 +169,7 @@ export default function VerifyEmailPage() {
             type="button"
             onClick={handleResendOTP}
             disabled={otpResendTimer > 0 || isLoading}
-            className="text-[13.5px] text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="text-[13.5px] text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             {otpResendTimer > 0 ? `Resend in ${otpResendTimer}s` : "Resend OTP"}
           </button>
