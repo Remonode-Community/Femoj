@@ -3,29 +3,24 @@
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useWallet } from "@/hooks/useWallet";
 import { useCredits } from "@/hooks/useCredits";
-import { usePayment } from "@/hooks/usePayment";
 import PaymentService from "@/services/paymentService";
-import { motion, AnimatePresence } from "framer-motion";
-import { formatCurrency, formatDate } from "@/utils";
-import { useState } from "react";
+import { motion } from "framer-motion";
+import { formatDate } from "@/utils";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import type { Region, Currency, RegionInfo } from "@/types";
 import {
-  Wallet,
   CreditCard,
-  ArrowUpRight,
-  ArrowDownLeft,
   Check,
-  ChevronRight,
   Loader2,
-  AlertCircle,
   Package,
   Shield,
-  Clock,
   Zap,
-  Building2,
-  X,
-  Plus,
-  Minus,
+  Globe,
+  MapPin,
+  ChevronRight,
+  History,
+  ArrowRight,
 } from "lucide-react";
 
 const fadeUp = {
@@ -37,572 +32,372 @@ const fadeUp = {
   }),
 };
 
-export default function WalletPage() {
-  const [showFundWallet, setShowFundWallet] = useState(false);
-  const [fundAmount, setFundAmount] = useState<string>("");
-  const [selectedBundle, setSelectedBundle] = useState<number | null>(null);
+const regionLabels: Record<Region, { label: string; icon: typeof Globe }> = {
+  africa: { label: "Africa", icon: MapPin },
+  international: { label: "International", icon: Globe },
+};
 
-  const {
-    balance,
-    transactions,
-    bundles,
-    isLoading,
-    transactionsLoading,
-    initializePurchase,
-    isInitializing,
-    error: walletError,
-  } = useWallet();
+export default function WalletPage() {
+  const [selectedRegion, setSelectedRegion] = useState<Region>("international");
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD");
+  const [purchasingBundleId, setPurchasingBundleId] = useState<number | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   const {
     creditBalance,
-    balanceLoading: creditBalanceLoading,
-  } = useCredits();
+    bundles,
+    purchaseHistory,
+    isLoading,
+    historyLoading,
+    initializePurchase,
+    isInitializing,
+    refetchBalance,
+  } = useWallet();
 
-  const { isLoading: paymentLoading, initializePayment } = usePayment();
+  const { transactions: creditTransactions } = useCredits();
 
-  const handleFundWallet = async () => {
-    const amount = parseInt(fundAmount) || 0;
-    if (amount < 100) {
-      toast.error("Minimum amount is ₦100");
-      return;
-    }
-
-    const result = await initializePayment(amount, {
-      source: "wallet_funding",
-      timestamp: new Date().toISOString(),
+  // Detect region on mount
+  useEffect(() => {
+    PaymentService.detectRegion().then((info: RegionInfo) => {
+      setSelectedRegion(info.region);
+      setSelectedCurrency(info.currencies[0]);
     });
+  }, []);
 
-    if (result.success && result.data?.authorization_url) {
-      PaymentService.storePaymentReference(result.data.reference);
-      window.location.href = result.data.authorization_url;
+  // Update currency when region changes
+  useEffect(() => {
+    if (selectedRegion === "africa") {
+      setSelectedCurrency("NGN");
     } else {
-      toast.error(result.message || "Failed to initialize payment. Please try again.");
+      setSelectedCurrency("USD");
     }
+  }, [selectedRegion]);
+
+  const getPrice = (bundle: any) => {
+    if (selectedCurrency === "NGN") {
+      return bundle.price_ngn;
+    }
+    return bundle.price_usd;
   };
 
-  const handleBuyCredits = (bundleId: number) => {
-    const bundle = bundles?.find((b) => b.id === bundleId);
-    if (!bundle) return;
-
-    if ((balance?.balance ?? 0) < bundle.price) {
-      toast.error("Insufficient wallet balance. Fund your wallet first.");
-      return;
+  const handlePurchase = async (bundleId: number) => {
+    setPurchasingBundleId(bundleId);
+    try {
+      initializePurchase(
+        { bundle_id: bundleId, currency: selectedCurrency },
+        {
+          onSuccess: (response: any) => {
+            if (response?.success && response?.data) {
+              const url =
+                response.data.authorization_url || response.data.url;
+              if (url) {
+                PaymentService.storePaymentReference(response.data.reference);
+                PaymentService.redirectToCheckout(url);
+              } else {
+                toast.success("Credits added successfully!");
+                refetchBalance();
+              }
+            } else {
+              toast.error(response?.message || "Failed to initialize payment");
+            }
+            setPurchasingBundleId(null);
+          },
+          onError: (error: any) => {
+            toast.error(error?.message || "Payment failed");
+            setPurchasingBundleId(null);
+          },
+        }
+      );
+    } catch {
+      setPurchasingBundleId(null);
     }
-
-    setSelectedBundle(bundleId);
-    initializePurchase(bundleId);
   };
-
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="min-h-screen bg-white flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-6 h-6 text-[#1a73e8] animate-spin" />
-            <p className="text-sm text-[#5f6368]">Loading wallet...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#f8f9fa]">
-        {/* ── Page header ─────────────────────────────────────────────────── */}
-        <motion.div
-          className="mb-6"
-          variants={fadeUp}
-          custom={0}
-          initial="hidden"
-          animate="show"
-        >
-          <h1 className="text-[22px] font-medium text-[#202124] tracking-tight">
-            Wallet & Credits
-          </h1>
-          <p className="mt-1 text-sm text-[#5f6368]">
-            Manage your wallet balance and purchase credits for services
+      <div className="max-w-4xl mx-auto space-y-8 px-4 py-6">
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-2xl font-bold text-gray-900">Buy Credits</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Purchase credits to use for virtual numbers and services
           </p>
         </motion.div>
 
-        {/* ── Error state ─────────────────────────────────────────────────── */}
-        {walletError && (
-          <motion.div
-            variants={fadeUp}
-            custom={1}
-            initial="hidden"
-            animate="show"
-            className="mb-6"
-          >
-            <div className="rounded-lg border border-[#fce8e6] bg-[#fce8e6]/50 p-5">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-[#c5221f] shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-[#c5221f]">
-                    Unable to load wallet data
-                  </p>
-                  <p className="text-xs text-[#5f6368] mt-0.5">
-                    Please try refreshing the page.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            BALANCE CARDS
-            ═══════════════════════════════════════════════════════════════════ */}
+        {/* Credit Balance Card */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
           variants={fadeUp}
-          custom={2}
           initial="hidden"
           animate="show"
+          custom={0}
+          className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg"
         >
-          {/* Wallet Balance Card */}
-          <div className="rounded-lg border border-[#e8eaed] bg-white p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-xs font-medium text-[#5f6368] uppercase tracking-wide">
-                  Wallet Balance
-                </p>
-                <p className="text-[32px] font-semibold text-[#202124] leading-tight mt-1">
-                  {formatCurrency(balance?.balance ?? 0)}
-                </p>
-                <p className="text-xs text-[#5f6368] mt-1">
-                  Naira — Fund via Paystack or bank transfer
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e8f0fe]">
-                <Wallet className="w-6 h-6 text-[#1a73e8]" />
-              </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 text-sm font-medium">Available Credits</p>
+              <p className="text-4xl font-bold mt-1">{creditBalance.toLocaleString()}</p>
+              <p className="text-blue-200 text-xs mt-1">credits available for use</p>
             </div>
-            <button
-              onClick={() => setShowFundWallet(!showFundWallet)}
-              className="w-full h-10 px-4 text-sm font-medium text-white bg-[#1a73e8] hover:bg-[#1765cc] rounded-lg transition-colors inline-flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Fund Wallet
-            </button>
-          </div>
-
-          {/* Credit Balance Card */}
-          <div className="rounded-lg border border-[#e8eaed] bg-white p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-xs font-medium text-[#5f6368] uppercase tracking-wide">
-                  Credit Balance
-                </p>
-                <p className="text-[32px] font-semibold text-[#137333] leading-tight mt-1">
-                  {creditBalanceLoading ? (
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                  ) : (
-                    creditBalance.toLocaleString()
-                  )}
-                </p>
-                <p className="text-xs text-[#5f6368] mt-1">
-                  Credits — Use for virtual numbers & services
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e6f4ea]">
-                <Zap className="w-6 h-6 text-[#137333]" />
-              </div>
-            </div>
-            <div className="h-10 px-4 text-sm font-medium text-[#137333] bg-[#e6f4ea] rounded-lg inline-flex items-center justify-center gap-2 w-full">
-              <Zap className="w-4 h-4" />
-              Buy from wallet below
+            <div className="bg-white/20 rounded-xl p-3">
+              <CreditCard className="w-8 h-8" />
             </div>
           </div>
         </motion.div>
 
-        {/* ═══════════════════════════════════════════════════════════════════
-            FUND WALLET SECTION
-            ═══════════════════════════════════════════════════════════════════ */}
-        <AnimatePresence>
-          {showFundWallet && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-8 overflow-hidden"
-            >
-              <div className="rounded-lg border border-[#e8eaed] bg-white p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8f0fe]">
-                      <CreditCard className="w-5 h-5 text-[#1a73e8]" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#202124]">
-                        Fund Wallet
-                      </p>
-                      <p className="text-xs text-[#5f6368]">
-                        Add Naira to your wallet via Paystack
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setShowFundWallet(false);
-                      setFundAmount("");
-                    }}
-                    className="p-2 hover:bg-[#f8f9fa] rounded-lg transition-colors"
-                  >
-                    <X className="w-4 h-4 text-[#5f6368]" />
-                  </button>
-                </div>
+        {/* Region Selection */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show" custom={1}>
+          <div className="flex items-center gap-2 mb-3">
+            <Globe className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Select Region</span>
+          </div>
+          <div className="flex gap-2">
+            {(Object.keys(regionLabels) as Region[]).map((region) => {
+              const Icon = regionLabels[region].icon;
+              return (
+                <button
+                  key={region}
+                  onClick={() => setSelectedRegion(region)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    selectedRegion === region
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {regionLabels[region].label}
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
 
-                {/* Preset amounts */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {[500, 1000, 2000, 5000, 10000, 20000].map((amt) => (
+        {/* Payment Method Selection */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2}>
+          <p className="text-sm font-medium text-gray-700 mb-3">Payment Method</p>
+          <div className="flex gap-2">
+            <div
+              className="flex items-center gap-3 px-5 py-3 rounded-xl border-2 border-blue-500 text-blue-700 font-medium"
+            >
+              <CreditCard className="w-5 h-5" />
+              <div className="text-left">
+                <p className="text-sm font-semibold">Paystack</p>
+                <p className="text-xs text-blue-500">
+                  Pay with {selectedCurrency === "NGN" ? "NGN (card, bank transfer)" : "USD (credit/debit card)"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Currency indicator */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+          custom={3}
+          className="flex items-center gap-2"
+        >
+          <span className="text-sm text-gray-500">Currency:</span>
+          <span className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">
+            {selectedCurrency}
+          </span>
+        </motion.div>
+
+        {/* Credit Bundles */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show" custom={4}>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Choose a Package</h2>
+          {isLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-gray-100 rounded-2xl h-40 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {bundles.map((bundle, index) => {
+                const price = getPrice(bundle);
+                const isPurchasing = purchasingBundleId === bundle.id;
+                const isPopular = bundle.name === "Premium";
+
+                return (
+                  <motion.div
+                    key={bundle.id}
+                    variants={fadeUp}
+                    initial="hidden"
+                    animate="show"
+                    custom={5 + index}
+                  >
                     <button
-                      key={amt}
-                      onClick={() => setFundAmount(String(amt))}
-                      className={`h-10 px-4 text-sm font-medium rounded-lg border transition-colors ${
-                        fundAmount === String(amt)
-                          ? "border-[#1a73e8] bg-[#f6fafe] text-[#1a73e8]"
-                          : "border-[#e8eaed] hover:border-[#dadce0] text-[#202124]"
+                      onClick={() => handlePurchase(bundle.id)}
+                      disabled={isPurchasing || isInitializing}
+                      className={`relative w-full text-left rounded-2xl p-5 transition-all hover:scale-[1.02] hover:shadow-lg ${
+                        isPopular
+                          ? "bg-blue-600 text-white ring-2 ring-blue-400"
+                          : "bg-white border-2 border-gray-200 text-gray-900 hover:border-blue-300"
                       }`}
                     >
-                      ₦{amt.toLocaleString()}
-                    </button>
-                  ))}
-                </div>
+                      {isPopular && (
+                        <span className="absolute -top-2.5 right-3 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          BEST VALUE
+                        </span>
+                      )}
 
-                {/* Custom amount */}
-                <div className="mb-4">
-                  <p className="text-xs font-medium text-[#5f6368] mb-2">
-                    Or enter custom amount
-                  </p>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#5f6368]">
-                      ₦
-                    </span>
-                    <input
-                      type="number"
-                      placeholder="Enter amount"
-                      value={fundAmount}
-                      onChange={(e) => setFundAmount(e.target.value)}
-                      min={100}
-                      className="w-full h-10 pl-7 pr-4 text-sm border border-[#e8eaed] rounded-lg focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8]"
-                    />
-                  </div>
-                  <p className="text-xs text-[#9aa0a6] mt-1">Minimum ₦100</p>
-                </div>
-
-                {/* Submit */}
-                <button
-                  onClick={handleFundWallet}
-                  disabled={paymentLoading || !fundAmount || parseInt(fundAmount) < 100}
-                  className="w-full h-11 px-4 text-sm font-medium text-white bg-[#1a73e8] hover:bg-[#1765cc] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
-                >
-                  {paymentLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Initializing...
-                    </>
-                  ) : (
-                    <>
-                      Fund with Paystack
-                      <ChevronRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-
-                <div className="flex items-center gap-2 mt-3 text-xs text-[#9aa0a6]">
-                  <Shield className="w-3.5 h-3.5" />
-                  <span>Secure payment powered by Paystack</span>
-                </div>
-
-                {/* DVA Bank Transfer */}
-                {balance?.dva_details && (
-                  <div className="mt-5 pt-5 border-t border-[#e8eaed]">
-                    <p className="text-xs font-medium text-[#5f6368] uppercase tracking-wide mb-3">
-                      Or Fund via Bank Transfer
-                    </p>
-                    <div className="flex items-center gap-3 p-4 rounded-lg bg-[#f8f9fa]">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white border border-[#e8eaed]">
-                        <Building2 className="w-5 h-5 text-[#5f6368]" />
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span
+                          className={`text-2xl font-bold ${
+                            isPopular ? "text-white" : "text-blue-600"
+                          }`}
+                        >
+                          {bundle.credits}
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#202124]">
-                          {balance.dva_details.account_number}
-                        </p>
-                        <p className="text-xs text-[#5f6368]">
-                          {balance.dva_details.bank_name} — {balance.dva_details.account_name}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(balance.dva_details!.account_number);
-                          toast.success("Account number copied!");
-                        }}
-                        className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium text-[#1a73e8] hover:bg-white rounded-md border border-[#e8eaed] transition-colors"
-                      >
-                        <Check className="w-3 h-3" />
-                        Copy
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* ═══════════════════════════════════════════════════════════════════
-            BUY CREDITS SECTION
-            ═══════════════════════════════════════════════════════════════════ */}
-        <motion.div
-          className="mb-8"
-          variants={fadeUp}
-          custom={3}
-          initial="hidden"
-          animate="show"
-        >
-          <div className="rounded-lg border border-[#e8eaed] bg-white overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#e8eaed] bg-[#f8f9fa]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e6f4ea]">
-                  <Zap className="w-5 h-5 text-[#137333]" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-[#202124]">
-                    Buy Credits
-                  </p>
-                  <p className="text-xs text-[#5f6368]">
-                    Purchase credits from your wallet balance
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6">
-              {bundles && bundles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {bundles.map((bundle) => {
-                    const canAfford = (balance?.balance ?? 0) >= bundle.price;
-                    const isPurchasing = selectedBundle === bundle.id && isInitializing;
-                    return (
-                      <button
-                        key={bundle.id}
-                        onClick={() => handleBuyCredits(bundle.id)}
-                        disabled={!canAfford || isInitializing}
-                        className={`flex flex-col items-center p-5 rounded-lg border transition-all ${
-                          canAfford
-                            ? "border-[#e8eaed] hover:border-[#137333] hover:bg-[#f0faf4] cursor-pointer"
-                            : "border-[#e8eaed] bg-[#f8f9fa] opacity-60 cursor-not-allowed"
+                      <p
+                        className={`text-xs font-medium mb-3 ${
+                          isPopular ? "text-blue-100" : "text-gray-500"
                         }`}
                       >
-                        {isPurchasing ? (
-                          <Loader2 className="w-8 h-8 text-[#137333] animate-spin mb-3" />
-                        ) : (
-                          <div className={`flex h-12 w-12 items-center justify-center rounded-full mb-3 ${
-                            canAfford ? "bg-[#e6f4ea]" : "bg-[#e8eaed]"
-                          }`}>
-                            <Zap className={`w-6 h-6 ${canAfford ? "text-[#137333]" : "text-[#9aa0a6]"}`} />
-                          </div>
-                        )}
-                        <p className="text-[28px] font-semibold text-[#202124] leading-none">
-                          {bundle.credits.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-[#5f6368] mt-1">credits</p>
-                        <p className={`text-sm font-medium mt-2 ${
-                          canAfford ? "text-[#137333]" : "text-[#9aa0a6]"
-                        }`}>
-                          {formatCurrency(bundle.price)}
-                        </p>
-                        {bundle.description && (
-                          <p className="text-[11px] text-[#9aa0a6] mt-1 text-center">
-                            {bundle.description}
-                          </p>
-                        )}
-                        {!canAfford && (
-                          <p className="text-[10px] text-[#c5221f] mt-1">
-                            Insufficient balance
-                          </p>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-10 border border-dashed border-[#dadce0] rounded-lg">
-                  <Package className="w-10 h-10 text-[#dadce0] mx-auto mb-3" />
-                  <p className="text-sm text-[#5f6368]">
-                    No credit bundles available at the moment.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
+                        {bundle.name}
+                      </p>
 
-        {/* ═══════════════════════════════════════════════════════════════════
-            HOW IT WORKS
-            ═══════════════════════════════════════════════════════════════════ */}
-        <motion.div
-          variants={fadeUp}
-          custom={4}
-          initial="hidden"
-          animate="show"
-          className="mb-8"
-        >
-          <div className="rounded-lg border border-[#e8eaed] bg-white p-5">
-            <p className="text-sm font-medium text-[#202124] mb-4">
-              How It Works
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                {
-                  step: "1",
-                  title: "Fund Wallet",
-                  desc: "Add Naira to your wallet via Paystack (card, bank transfer, USSD)",
-                  icon: Wallet,
-                  color: "bg-[#e8f0fe] text-[#1a73e8]",
-                },
-                {
-                  step: "2",
-                  title: "Buy Credits",
-                  desc: "Purchase credit bundles from your wallet balance",
-                  icon: Zap,
-                  color: "bg-[#e6f4ea] text-[#137333]",
-                },
-                {
-                  step: "3",
-                  title: "Use Services",
-                  desc: "Spend credits on virtual numbers, SMS, and other services",
-                  icon: Shield,
-                  color: "bg-[#fef7e0] text-[#b06000]",
-                },
-              ].map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={i}
-                    className="flex items-start gap-3 p-4 rounded-lg border border-[#e8eaed]"
-                  >
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${item.color} shrink-0`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#202124]">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-[#5f6368] mt-0.5">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
+                      <div
+                        className={`border-t ${
+                          isPopular ? "border-blue-400" : "border-gray-200"
+                        } pt-3`}
+                      >
+                        {isPurchasing ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <p
+                            className={`text-lg font-bold ${
+                              isPopular ? "text-white" : "text-gray-900"
+                            }`}
+                          >
+                            {PaymentService.formatCurrency(price, selectedCurrency)}
+                          </p>
+                        )}
+                      </div>
+
+                      {bundle.description && (
+                        <p
+                          className={`text-[10px] mt-2 ${
+                            isPopular ? "text-blue-200" : "text-gray-400"
+                          }`}
+                        >
+                          {bundle.description}
+                        </p>
+                      )}
+                    </button>
+                  </motion.div>
                 );
               })}
             </div>
+          )}
+        </motion.div>
+
+        {/* How It Works */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show" custom={9}>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">How It Works</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              {
+                icon: Package,
+                title: "Choose a Package",
+                desc: "Select the credit amount that suits you",
+              },
+              {
+                icon: Shield,
+                title: "Secure Payment",
+                desc: "Pay safely via Paystack",
+              },
+              {
+                icon: Zap,
+                title: "Instant Credits",
+                desc: "Credits are added to your balance immediately",
+              },
+            ].map((step, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-3 bg-gray-50 rounded-xl p-4"
+              >
+                <div className="bg-blue-100 rounded-lg p-2">
+                  <step.icon className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{step.title}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{step.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.div>
 
-        {/* ═══════════════════════════════════════════════════════════════════
-            TRANSACTION HISTORY
-            ═══════════════════════════════════════════════════════════════════ */}
-        <motion.div
-          variants={fadeUp}
-          custom={5}
-          initial="hidden"
-          animate="show"
-        >
-          <div className="rounded-lg border border-[#e8eaed] bg-white p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#e8f0fe]">
-                <Clock className="w-4 h-4 text-[#1a73e8]" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-[#202124]">
-                  Recent Transactions
-                </p>
-                <p className="text-xs text-[#5f6368]">
-                  Your wallet and credit activity
-                </p>
-              </div>
-            </div>
+        {/* Purchase History */}
+        <motion.div variants={fadeUp} initial="hidden" animate="show" custom={10}>
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <History className="w-4 h-4" />
+            Purchase History
+            <ChevronRight
+              className={`w-4 h-4 transition-transform ${showHistory ? "rotate-90" : ""}`}
+            />
+          </button>
 
-            {transactionsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-5 h-5 text-[#1a73e8] animate-spin" />
-              </div>
-            ) : transactions && transactions.length > 0 ? (
-              <div className="space-y-2">
-                {transactions.slice(0, 8).map((txn) => {
-                  const isCredit = txn.type === "credit";
-                  const isWalletFunding = txn.description?.includes("funding") || txn.description?.includes("DVA");
-                  const isCreditPurchase = txn.description?.includes("Credit Bundle") || txn.description?.includes("credit");
-
-                  let badge = "Debit";
-                  let badgeColor = "bg-[#fce8e6] text-[#c5221f]";
-                  let iconBg = "bg-[#fce8e6]";
-                  let iconColor = "text-[#c5221f]";
-                  let IconComponent = ArrowUpRight;
-
-                  if (isCredit) {
-                    if (isWalletFunding) {
-                      badge = "Funded";
-                      badgeColor = "bg-[#e8f0fe] text-[#1a73e8]";
-                      iconBg = "bg-[#e8f0fe]";
-                      iconColor = "text-[#1a73e8]";
-                      IconComponent = ArrowDownLeft;
-                    } else {
-                      badge = "Credit";
-                      badgeColor = "bg-[#e6f4ea] text-[#137333]";
-                      iconBg = "bg-[#e6f4ea]";
-                      iconColor = "text-[#137333]";
-                      IconComponent = ArrowDownLeft;
-                    }
-                  } else if (isCreditPurchase) {
-                    badge = "Purchased";
-                    badgeColor = "bg-[#fef7e0] text-[#b06000]";
-                    iconBg = "bg-[#fef7e0]";
-                    iconColor = "text-[#b06000]";
-                  }
-
-                  return (
-                    <div
-                      key={txn.id}
-                      className="flex items-center gap-4 px-4 py-3 rounded-md border border-[#e8eaed] hover:bg-[#f8f9fa] transition-colors"
-                    >
-                      <div className={`flex h-9 w-9 items-center justify-center rounded-full shrink-0 ${iconBg}`}>
-                        <IconComponent className={`w-4 h-4 ${iconColor}`} />
+          {showHistory && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-3 bg-white border border-gray-200 rounded-xl overflow-hidden"
+            >
+              {historyLoading ? (
+                <div className="p-8 text-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400 mx-auto" />
+                </div>
+              ) : purchaseHistory.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 text-sm">
+                  No purchases yet
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {purchaseHistory.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-blue-100 rounded-lg p-1.5">
+                          <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {item.bundle_name || "Credit Purchase"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatDate(item.created_at)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#202124] truncate">
-                          {txn.description || "Transaction"}
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-green-600">
+                          +{item.credits} credits
                         </p>
-                        <p className="text-xs text-[#5f6368]">
-                          {formatDate(txn.created_at)}
-                        </p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className={`text-sm font-medium tabular-nums ${
-                          isCredit ? "text-[#137333]" : "text-[#c5221f]"
-                        }`}>
-                          {isCredit ? "+" : "−"}
-                          {formatCurrency(txn.amount)}
-                        </p>
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${badgeColor}`}>
-                          {badge}
+                        <span
+                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                            item.status === "success"
+                              ? "bg-green-100 text-green-700"
+                              : item.status === "pending"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {item.status}
                         </span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8 border border-dashed border-[#dadce0] rounded-lg">
-                <Clock className="w-8 h-8 text-[#dadce0] mx-auto mb-2" />
-                <p className="text-sm text-[#5f6368]">
-                  No transactions yet. Fund your wallet to get started!
-                </p>
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </DashboardLayout>

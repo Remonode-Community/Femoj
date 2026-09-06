@@ -2,7 +2,6 @@
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useVirtualNumbers } from "@/hooks/useVirtualNumbers";
-import { useWallet } from "@/hooks/useWallet";
 import { useCredits } from "@/hooks/useCredits";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, Suspense } from "react";
@@ -39,7 +38,6 @@ import {
   ShoppingBag,
   Car,
   Tv,
-  Wallet,
   DollarSign,
   MoreHorizontal,
 } from "lucide-react";
@@ -57,28 +55,42 @@ const fadeUp = {
 const SERVICE_ICONS: Record<string, string> = {
   whatsapp: "/whatsapp.png",
   telegram: "/telegram.png",
-  instagram: "/google.png",
-  twitter: "/google.png",
+  instagram: "/instagram.png",
+  twitter: "/twitter.png",
   facebook: "/meta.png",
   tiktok: "/tiktok.png",
   snapchat: "/snapchat.png",
-  tinder: "/google.png",
-  bumble: "/google.png",
+  tinder: "/tinder.png",
+  bumble: "/bumble.png",
   discord: "/discord.png",
-  signal: "/google.png",
-  viber: "/google.png",
-  wechat: "/google.png",
-  line: "/google.png",
-  kakaotalk: "/google.png",
-  microsoft: "/google.png",
+  signal: "/signal.png",
+  viber: "/viber.png",
+  wechat: "/wechat.png",
+  line: "/line.png",
+  kakaotalk: "/kakaotalk.png",
+  microsoft: "/microsoft.png",
   google: "/google.png",
-  apple: "/google.png",
-  amazon: "/google.png",
+  apple: "/apple.png",
+  amazon: "/amazon.png",
   uber: "/uber.png",
-  netflix: "/google.png",
-  spotify: "/google.png",
+  netflix: "/netflix.png",
+  spotify: "/spotify.png",
   paypal: "/paypal.png",
-  cashapp: "/google.png",
+  cashapp: "/cashapp.png",
+  fiverr: "/fiverr.png",
+  upwork: "/upwork.png",
+  freelancer: "/freelancer.png",
+  toptal: "/toptal.png",
+  guru: "/guru.png",
+  peopleperhour: "/peopleperhour.png",
+  twitch: "/twitch.png",
+  zoom: "/zoom.png",
+  slack: "/slack.png",
+  github: "/github.png",
+  dropbox: "/dropbox.png",
+  airbnb: "/airbnb.png",
+  shopify: "/shopify.png",
+  ebay: "/ebay.png",
   other: "",
 };
 
@@ -91,6 +103,8 @@ const CATEGORIES = [
   { slug: "tech", label: "Tech" },
   { slug: "ecommerce", label: "Shopping" },
   { slug: "finance", label: "Finance" },
+  { slug: "freelancing", label: "Freelancing" },
+  { slug: "entertainment", label: "Entertainment" },
 ];
 
 type Step = "service" | "country" | "confirm" | "success";
@@ -113,7 +127,6 @@ function NumbersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { services, servicesLoading, useCountries, usePricing, numbers, numbersLoading, orderNumber, isOrdering, stats } = useVirtualNumbers();
-  const { balance } = useWallet();
   const { creditBalance } = useCredits();
 
   const [step, setStep] = useState<Step>("service");
@@ -299,7 +312,7 @@ function NumbersContent() {
                             }}
                           />
                         ) : null}
-                        <span className={`text-3xl ${SERVICE_ICONS[service.slug] ? "hidden" : ""}`}>📱</span>
+                        <Smartphone className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[service.slug] ? "hidden" : ""}`} />
                       </div>
                       <span className="text-xs font-medium text-[#202124] text-center leading-tight">
                         {service.name}
@@ -342,7 +355,7 @@ function NumbersContent() {
                       }}
                     />
                   ) : null}
-                  <span className={`text-3xl ${SERVICE_ICONS[selectedService?.slug] ? "hidden" : ""}`}>📱</span>
+                  <Smartphone className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[selectedService?.slug] ? "hidden" : ""}`} />
                   <div>
                     <h1 className="text-[22px] font-medium text-[#202124]">
                       {selectedService?.name}
@@ -585,7 +598,7 @@ function NumbersContent() {
                         }}
                       />
                     ) : null}
-                    <span className={`text-3xl ${SERVICE_ICONS[result.service?.slug] ? "hidden" : ""}`}>📱</span>
+                    <Smartphone className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[result.service?.slug] ? "hidden" : ""}`} />
                   </div>
                   <p className="text-2xl font-mono font-semibold text-[#202124] mb-1">
                     {result.number}

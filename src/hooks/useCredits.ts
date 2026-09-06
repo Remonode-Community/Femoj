@@ -1,34 +1,39 @@
-/**
- * useCredits Hook
- * React Query hook for credit balance and transactions
- */
+"use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { creditService } from "@/services/creditService";
 
 export function useCredits() {
+  const queryClient = useQueryClient();
+
   const {
-    data: balanceData,
+    data: creditBalance = 0,
     isLoading: balanceLoading,
     refetch: refetchBalance,
   } = useQuery({
     queryKey: ["credits", "balance"],
-    queryFn: () => creditService.getBalance(),
-    select: (res) => (res.success ? res.data : null),
+    queryFn: async () => {
+      const result = await creditService.getBalance();
+      return result?.data?.credit_balance ?? 0;
+    },
+    staleTime: 30 * 1000,
   });
 
   const {
-    data: transactionsData,
+    data: transactions = [],
     isLoading: transactionsLoading,
   } = useQuery({
     queryKey: ["credits", "transactions"],
-    queryFn: () => creditService.getTransactions({ limit: 20 }),
-    select: (res) => (res.success ? res.data : []),
+    queryFn: async () => {
+      const result = await creditService.getTransactions({ limit: 20 });
+      return result?.data ?? [];
+    },
+    staleTime: 60 * 1000,
   });
 
   return {
-    creditBalance: balanceData?.credit_balance ?? 0,
-    transactions: transactionsData ?? [],
+    creditBalance,
+    transactions,
     balanceLoading,
     transactionsLoading,
     refetchBalance,

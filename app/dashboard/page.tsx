@@ -1,7 +1,6 @@
 "use client";
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { useWallet } from "@/hooks/useWallet";
 import { useVirtualNumbers } from "@/hooks/useVirtualNumbers";
 import { useCredits } from "@/hooks/useCredits";
 import { motion } from "framer-motion";
@@ -55,13 +54,11 @@ const SERVICE_ICONS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  const { balance } = useWallet();
-  const { numbers, stats, numbersLoading, services } = useVirtualNumbers();
   const { creditBalance } = useCredits();
+  const { numbers, stats, numbersLoading, services } = useVirtualNumbers();
 
   const activeNumbers = numbers?.filter((n) => n.status === "active") || [];
   const recentNumbers = activeNumbers.slice(0, 5);
-  const balanceMajor = balance?.balance ?? 0;
 
   return (
     <DashboardLayout>
@@ -83,14 +80,14 @@ export default function DashboardPage() {
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <p className="text-white/80 text-sm mb-1">Available Balance</p>
+                  <p className="text-white/80 text-sm mb-1">Available Credits</p>
                   <p className="text-3xl md:text-4xl font-semibold mb-2">
-                    ₦{Number(balanceMajor).toLocaleString()}
+                    {creditBalance.toLocaleString()}
                   </p>
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-yellow-300" />
                     <span className="text-sm text-white/90">
-                      {creditBalance.toLocaleString()} Credits Available
+                      credits ready to use
                     </span>
                   </div>
                 </div>
@@ -107,7 +104,7 @@ export default function DashboardPage() {
                     className="inline-flex items-center gap-2 h-10 px-5 text-sm bg-white/20 text-white hover:bg-white/30 rounded-lg font-medium transition-colors backdrop-blur-sm"
                   >
                     <CreditCard className="w-4 h-4" />
-                    Fund Wallet
+                    Buy Credits
                   </Link>
                 </div>
               </div>
@@ -137,7 +134,7 @@ export default function DashboardPage() {
               value: `₦${Number(stats?.total_spent ?? 0).toLocaleString()}`,
               icon: TrendingUp,
               color: "bg-[#fef7e0] text-[#b06000]",
-              href: "/dashboard/wallet",
+              href: "/dashboard/numbers",
             },
             {
               label: "Credits",

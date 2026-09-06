@@ -1,101 +1,76 @@
 /**
- * Wallet Service
- * Handles all wallet and credit bundle API communication
+ * Wallet Service - Simplified for credit-only purchases
+ * Wallet functionality is hidden but kept for backend compatibility
  */
 
 import { apiGet, apiPost } from "@/lib/api-client";
-import type {
-  ApiResponse,
-  WalletBalance,
-  WalletTransactionItem,
-  WalletTransactionsResponse,
-  CreditBundle,
-  CreditBundlePurchaseResponse,
-  CreditBundleVerifyResponse,
-  CreditPurchaseHistoryItem,
-} from "@/types";
+import type { CreditBundle, CreditPurchaseHistoryItem } from "@/types";
 
-export const walletService = {
-  /**
-   * Get wallet balance
-   * GET /payment/wallet/balance
-   */
-  async getBalance(): Promise<ApiResponse<WalletBalance>> {
-    return apiGet<WalletBalance>("/payment/wallet/balance", {
-      requiresAuth: true,
-    });
+const WALLET_ENDPOINTS = {
+  CREDIT_BUNDLES: "/payment/credit-bundles",
+  CREDIT_BUNDLES_PURCHASE: "/payment/credit-bundles/purchase",
+  CREDIT_BUNDLES_VERIFY: "/payment/credit-bundles/verify",
+  CREDIT_BUNDLES_HISTORY: "/payment/credit-bundles/history",
+  CREDIT_BALANCE: "/payment/credit-balance",
+} as const;
+
+const walletService = {
+  async getBundles(): Promise<CreditBundle[]> {
+    try {
+      const response = await apiGet<CreditBundle[]>(
+        WALLET_ENDPOINTS.CREDIT_BUNDLES,
+        { requiresAuth: false }
+      );
+      return response.success ? (response.data as CreditBundle[]) : [];
+    } catch {
+      return [];
+    }
   },
 
-  /**
-   * Get wallet transaction history
-   * GET /payment/wallet/transactions
-   */
-  async getTransactions(params?: {
-    limit?: number;
-    page?: number;
-    type?: string;
-    date_from?: string;
-    date_to?: string;
-  }): Promise<ApiResponse<WalletTransactionsResponse>> {
-    const query = new URLSearchParams();
-    if (params?.limit) query.set("limit", String(params.limit));
-    if (params?.page) query.set("page", String(params.page));
-    if (params?.type) query.set("type", params.type);
-    if (params?.date_from) query.set("date_from", params.date_from);
-    if (params?.date_to) query.set("date_to", params.date_to);
-    const qs = query.toString();
-    const endpoint = `/payment/wallet/transactions${qs ? `?${qs}` : ""}`;
-    return apiGet<WalletTransactionsResponse>(endpoint, {
-      requiresAuth: true,
-    });
-  },
-
-  /**
-   * Get credit bundles
-   * GET /payment/credit-bundles
-   */
-  async getBundles(): Promise<ApiResponse<CreditBundle[]>> {
-    return apiGet<CreditBundle[]>("/payment/credit-bundles");
-  },
-
-  /**
-   * Purchase credit bundle (debited from wallet)
-   * POST /payment/credit-bundles/purchase
-   */
-  async initializePurchase(payload: {
+  async initializePurchase(data: {
     bundle_id: number;
-  }): Promise<ApiResponse<CreditBundlePurchaseResponse>> {
-    return apiPost<CreditBundlePurchaseResponse>(
-      "/payment/credit-bundles/purchase",
-      payload,
+    payment_method?: string;
+  }) {
+    const response = await apiPost(
+      WALLET_ENDPOINTS.CREDIT_BUNDLES_PURCHASE,
+      data,
       { requiresAuth: true }
     );
+    return response;
   },
 
-  /**
-   * Verify credit bundle purchase
-   * POST /payment/credit-bundles/verify
-   */
-  async verifyPurchase(payload: {
-    reference: string;
-  }): Promise<ApiResponse<CreditBundleVerifyResponse>> {
-    return apiPost<CreditBundleVerifyResponse>(
-      "/payment/credit-bundles/verify",
-      payload,
+  async verifyPurchase(data: { reference: string }) {
+    const response = await apiPost(
+      WALLET_ENDPOINTS.CREDIT_BUNDLES_VERIFY,
+      data,
       { requiresAuth: true }
     );
+    return response;
   },
 
-  /**
-   * Get credit purchase history
-   * GET /payment/credit-bundles/history
-   */
-  async getPurchaseHistory(
-    limit?: number
-  ): Promise<ApiResponse<CreditPurchaseHistoryItem[]>> {
-    const endpoint = `/payment/credit-bundles/history${limit ? `?limit=${limit}` : ""}`;
-    return apiGet<CreditPurchaseHistoryItem[]>(endpoint, {
-      requiresAuth: true,
-    });
+  async getPurchaseHistory(limit = 20): Promise<CreditPurchaseHistoryItem[]> {
+    try {
+      const response = await apiGet<CreditPurchaseHistoryItem[]>(
+        `${WALLET_ENDPOINTS.CREDIT_BUNDLES_HISTORY}?limit=${limit}`,
+        { requiresAuth: true }
+      );
+      return response.success ? (response.data as CreditPurchaseHistoryItem[]) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  async getCreditBalance() {
+    try {
+      const response = await apiGet<{ credit_balance: number }>(
+        WALLET_ENDPOINTS.CREDIT_BALANCE,
+        { requiresAuth: true }
+      );
+      return response.success ? (response.data?.credit_balance ?? 0) : 0;
+    } catch {
+      return 0;
+    }
   },
 };
+
+export default walletService;

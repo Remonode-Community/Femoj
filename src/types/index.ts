@@ -634,6 +634,8 @@ export interface CreditBundle {
   name: string;
   credits: number;
   price: number;
+  price_ngn: number;
+  price_usd: number;
   currency: string;
   description: string;
   is_active: boolean;
@@ -643,12 +645,16 @@ export interface CreditBundle {
 }
 
 export interface CreditBundlePurchaseResponse {
-  authorization_url: string;
+  authorization_url?: string;
+  url?: string;
+  session_id?: string;
   reference: string;
-  access_code: string;
+  access_code?: string;
   amount: number;
-  credits: number;
-  bundle: {
+  currency: string;
+  payment_method: string;
+  credits?: number;
+  bundle?: {
     id: number;
     name: string;
     credits: number;
@@ -659,14 +665,8 @@ export interface CreditBundlePurchaseResponse {
 export interface CreditBundleVerifyResponse {
   reference: string;
   status: string;
-  amount: number;
   credits_added: number;
-  new_balance: number;
-  bundle: {
-    id: number;
-    name: string;
-    credits: number;
-  };
+  new_credit_balance: number;
 }
 
 export interface CreditPurchaseHistoryItem {
@@ -676,7 +676,20 @@ export interface CreditPurchaseHistoryItem {
   reference: string;
   credits: number;
   bundle_name: string;
+  payment_method?: string;
+  currency?: string;
   created_at: string;
+}
+
+export type Region = 'africa' | 'international';
+export type PaymentMethod = 'paystack' | 'stripe';
+export type Currency = 'NGN' | 'USD';
+
+export interface RegionInfo {
+  country_code: string;
+  region: Region;
+  payment_methods: PaymentMethod[];
+  currencies: Currency[];
 }
 
 /**
