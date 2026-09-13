@@ -100,13 +100,7 @@ export default function DashboardPage() {
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-<<<<<<< HEAD
                   <p className="text-white/80 text-sm mb-1">Available Balance</p>
-=======
-                  <p className="text-white/80 text-sm mb-1">
-                    Available Credits
-                  </p>
->>>>>>> efc8965 (fix: update featured app logos)
                   <p className="text-3xl md:text-4xl font-semibold mb-2">
                     ₦{Number(balanceMajor).toLocaleString()}
                   </p>
