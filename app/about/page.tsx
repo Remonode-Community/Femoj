@@ -21,12 +21,16 @@ export default function AboutPage() {
           animate="show"
         >
           <Container>
-            <motion.div className="text-center max-w-3xl mx-auto" variants={staggerItem}>
+            <motion.div
+              className="text-center max-w-3xl mx-auto"
+              variants={staggerItem}
+            >
               <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                 About Femoj
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Empowering businesses worldwide with seamless, affordable virtual communication solutions.
+                Empowering businesses worldwide with seamless, affordable
+                virtual communication solutions.
               </p>
             </motion.div>
           </Container>
@@ -44,19 +48,25 @@ export default function AboutPage() {
               <motion.div variants={staggerItem}>
                 <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
                 <p className="text-lg text-muted-foreground mb-4">
-                  To provide the world's most accessible and affordable virtual communication platform, enabling businesses of all sizes to scale their operations globally without geographical limitations.
+                  To provide the world's most accessible and affordable virtual
+                  communication platform, enabling businesses of all sizes to
+                  scale their operations globally without geographical
+                  limitations.
                 </p>
                 <p className="text-lg text-muted-foreground">
-                  We believe communication should be frictionless, secure, and available to everyone, everywhere.
+                  We believe communication should be frictionless, secure, and
+                  available to everyone, everywhere.
                 </p>
               </motion.div>
               <motion.div variants={staggerItem}>
                 <h2 className="text-3xl font-bold mb-4">Our Vision</h2>
                 <p className="text-lg text-muted-foreground mb-4">
-                  To become the global leader in virtual communication services, trusted by millions of businesses and users worldwide.
+                  To become the global leader in virtual communication services,
+                  trusted by millions of businesses and users worldwide.
                 </p>
                 <p className="text-lg text-muted-foreground">
-                  Creating a world where distance is irrelevant and communication is instant, reliable, and affordable.
+                  Creating a world where distance is irrelevant and
+                  communication is instant, reliable, and affordable.
                 </p>
               </motion.div>
             </div>
@@ -88,7 +98,8 @@ export default function AboutPage() {
                 {
                   icon: Target,
                   title: "Customer First",
-                  description: "Every decision we make is driven by our customers' needs",
+                  description:
+                    "Every decision we make is driven by our customers' needs",
                 },
                 {
                   icon: Zap,
@@ -245,9 +256,7 @@ export default function AboutPage() {
               className="text-center max-w-2xl mx-auto"
               variants={staggerItem}
             >
-              <h2 className="text-4xl font-bold mb-6">
-                Ready to get started?
-              </h2>
+              <h2 className="text-4xl font-bold mb-6">Ready to get started?</h2>
               <p className="text-xl text-muted-foreground mb-8">
                 Join thousands of businesses using Femoj to scale globally
               </p>

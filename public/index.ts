@@ -13,3 +13,5 @@ export { default as telegram } from "./telegram.png";
 export { default as snapchat } from "./snapchat.png";
 export { default as payoneer } from "./payoneer.png";
 export { default as pstack } from "./pstack.png";
+export { default as googlePlay } from "./googlePlay.png";
+export { default as appstore } from "./appstore.png";
