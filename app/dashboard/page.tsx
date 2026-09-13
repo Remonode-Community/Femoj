@@ -100,16 +100,11 @@ export default function DashboardPage() {
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <p className="text-white/80 text-sm mb-1">Available Balance</p>
-                  <p className="text-3xl md:text-4xl font-semibold mb-2">
-                    ₦{Number(balanceMajor).toLocaleString()}
+                  <p style={{display:'-webkit-inline-flex'}} className="text-white/80 text-sm mb-1"> <Zap className="w-4 h-4 text-yellow-300" /> Available Credits</p>
+                  <p className="text-3xl md:text-4xl font-semibold mb-2 d-flex items-center gap-2">
+                     {creditBalance.toLocaleString()} 
                   </p>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-yellow-300" />
-                    <span className="text-sm text-white/90">
-                      {creditBalance.toLocaleString()} Credits Available
-                    </span>
-                  </div>
+                  
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <Link
