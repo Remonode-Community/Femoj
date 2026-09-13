@@ -33,25 +33,42 @@ const fadeUp = {
 const SERVICE_ICONS: Record<string, string> = {
   whatsapp: "/whatsapp.png",
   telegram: "/telegram.png",
-  instagram: "/google.png",
-  twitter: "/google.png",
-  facebook: "/meta.png",
+  instagram: "/instagram.png",
+  twitter: "/twitter.png",
+  facebook: "/facebook.png",
   tiktok: "/tiktok.png",
   snapchat: "/snapchat.png",
-  tinder: "/google.png",
-  bumble: "/google.png",
+  tinder: "/tinder.png",
+  bumble: "/bumble.png",
   discord: "/discord.png",
-  signal: "/google.png",
-  viber: "/google.png",
-  microsoft: "/google.png",
+  signal: "/signal.png",
+  viber: "/viber.png",
+  microsoft: "/microsoft.png",
   google: "/google.png",
-  apple: "/google.png",
-  amazon: "/google.png",
+  apple: "/apple.png",
+  amazon: "/amazon.png",
   uber: "/uber.png",
-  netflix: "/google.png",
+  netflix: "/netflix.png",
   spotify: "/google.png",
   paypal: "/paypal.png",
-  cashapp: "/google.png",
+  cashapp: "/cashapp.png",
+  wechat: "/wechat.png",
+  line: "/line.png",
+  kakaotalk: "/kakao-talk.png",
+  fiverr: "/fiverr.png",
+  upwork: "/upwork.png",
+  freelancer: "/freelancer.png",
+  toptal: "/toptal.png",
+  guru: "/guru.png",
+  peopleperhour: "/peopleperhour.png",
+  twitch: "/twitch.png",
+  zoom: "/zoom.png",
+  slack: "/slack.png",
+  github: "/github.png",
+  dropbox: "/dropbox.png",
+  airbnb: "/airbnb.png",
+  shopify: "/shopify.png",
+  ebay: "/ebay.png",
 };
 
 export default function DashboardPage() {
@@ -83,7 +100,13 @@ export default function DashboardPage() {
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
+<<<<<<< HEAD
                   <p className="text-white/80 text-sm mb-1">Available Balance</p>
+=======
+                  <p className="text-white/80 text-sm mb-1">
+                    Available Credits
+                  </p>
+>>>>>>> efc8965 (fix: update featured app logos)
                   <p className="text-3xl md:text-4xl font-semibold mb-2">
                     ₦{Number(balanceMajor).toLocaleString()}
                   </p>
@@ -161,7 +184,9 @@ export default function DashboardPage() {
                   className="block rounded-lg border border-[#e8eaed] bg-white p-4 hover:shadow-[0_1px_6px_rgba(32,33,36,.18)] transition-all"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.color}`}>
+                    <div
+                      className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.color}`}
+                    >
                       <Icon className="w-4 h-4" />
                     </div>
                     <ChevronRight className="w-4 h-4 text-[#9aa0a6]" />
@@ -218,11 +243,17 @@ export default function DashboardPage() {
                         className="h-8 w-8 object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = "none";
-                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+                          (
+                            e.target as HTMLImageElement
+                          ).nextElementSibling?.classList.remove("hidden");
                         }}
                       />
                     ) : null}
-                    <span className={`text-2xl ${SERVICE_ICONS[service.slug] ? "hidden" : ""}`}>📱</span>
+                    <span
+                      className={`text-2xl ${SERVICE_ICONS[service.slug] ? "hidden" : ""}`}
+                    >
+                      📱
+                    </span>
                   </div>
                   <span className="text-[11px] text-[#5f6368] text-center leading-tight truncate w-full">
                     {service.name}
@@ -265,7 +296,10 @@ export default function DashboardPage() {
               {numbersLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-lg border border-[#e8eaed]">
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center gap-3 p-3 rounded-lg border border-[#e8eaed]"
+                    >
                       <div className="h-10 w-10 bg-[#f1f3f4] rounded-lg" />
                       <div className="flex-1">
                         <div className="h-4 bg-[#f1f3f4] rounded w-1/3 mb-2" />
@@ -426,9 +460,7 @@ export default function DashboardPage() {
           animate="show"
         >
           <div className="rounded-lg border border-[#e8eaed] bg-white p-5">
-            <p className="text-sm font-medium text-[#202124] mb-3">
-              Pro Tips
-            </p>
+            <p className="text-sm font-medium text-[#202124] mb-3">Pro Tips</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-3 rounded-lg bg-[#f8f9fa]">
                 <p className="text-xs font-medium text-[#202124] mb-1">
