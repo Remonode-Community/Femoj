@@ -637,7 +637,7 @@ function NumbersContent() {
                   <div className="flex justify-between">
                     <span className="text-sm text-[#5f6368]">Amount Paid</span>
                     <span className="text-sm font-medium text-[#202124]">
-                      ₦{Number(result.price).toLocaleString()}
+                      {result.credit_price} credits
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -649,7 +649,7 @@ function NumbersContent() {
                   <div className="flex justify-between">
                     <span className="text-sm text-[#5f6368]">New Balance</span>
                     <span className="text-sm font-medium text-[#137333]">
-                      ₦{Number(result.new_balance).toLocaleString()}
+                      {result.new_credit_balance?.toLocaleString()} credits
                     </span>
                   </div>
                 </div>

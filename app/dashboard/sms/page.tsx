@@ -59,9 +59,17 @@ export default function SmsPage() {
   };
 
   const SERVICE_ICONS: Record<string, string> = {
-    whatsapp: "/whatsapp.png", telegram: "/telegram.png", instagram: "/google.png", twitter: "/google.png",
-    facebook: "/meta.png", tiktok: "/tiktok.png", snapchat: "/snapchat.png", tinder: "/google.png",
-    discord: "/discord.png", signal: "/google.png", other: "",
+    whatsapp: "/whatsapp.png", telegram: "/telegram.png", instagram: "/instagram.png", twitter: "/twitter.png",
+    facebook: "/meta.png", tiktok: "/tiktok.png", snapchat: "/snapchat.png", tinder: "/tinder.png",
+    bumble: "/bumble.png", discord: "/discord.png", signal: "/signal.png", viber: "/viber.png",
+    wechat: "/wechat.png", line: "/line.png", kakaotalk: "/kakaotalk.png",
+    microsoft: "/microsoft.png", google: "/google.png", apple: "/apple.png", amazon: "/amazon.png",
+    uber: "/uber.png", netflix: "/netflix.png", spotify: "/spotify.png", paypal: "/paypal.png",
+    cashapp: "/cashapp.png", fiverr: "/fiverr.png", upwork: "/upwork.png", freelancer: "/freelancer.png",
+    toptal: "/toptal.png", guru: "/guru.png", peopleperhour: "/peopleperhour.png",
+    twitch: "/twitch.png", zoom: "/zoom.png", slack: "/slack.png", github: "/github.png",
+    dropbox: "/dropbox.png", airbnb: "/airbnb.png", shopify: "/shopify.png", ebay: "/ebay.png",
+    other: "",
   };
 
   return (
@@ -183,7 +191,7 @@ export default function SmsPage() {
                               }}
                             />
                           ) : null}
-                          <span className={`text-lg mr-1 ${SERVICE_ICONS[number.service?.slug] ? "hidden" : ""}`}>📱</span>
+                          <Smartphone className={`w-5 h-5 text-[#9aa0a6] mr-1 ${SERVICE_ICONS[number.service?.slug] ? "hidden" : ""}`} />
                           <p className="text-sm font-medium text-[#202124] truncate">
                             {number.service.name}
                           </p>

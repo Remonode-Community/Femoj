@@ -17,6 +17,7 @@ import {
   Shield,
   Package,
   Search,
+  MessageSquare,
   LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
@@ -34,6 +35,7 @@ const ADMIN_NAVIGATION = [
   { label: "Numbers", href: "/admin/numbers", icon: "Smartphone" },
   { label: "Transactions", href: "/admin/transactions", icon: "CreditCard" },
   { label: "Credits", href: "/admin/credits", icon: "BarChart3" },
+  { label: "Support", href: "/admin/support", icon: "MessageSquare" },
 ];
 
 const ADMIN_ICONS: Record<string, LucideIcon> = {
@@ -44,6 +46,7 @@ const ADMIN_ICONS: Record<string, LucideIcon> = {
   Smartphone,
   CreditCard,
   BarChart3,
+  MessageSquare,
 };
 
 interface AdminLayoutProps {

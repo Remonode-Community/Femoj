@@ -15,6 +15,7 @@ import type {
   VNOrderPayload,
   VNOrderResponse,
   VNStats,
+  VNSearchNumber,
 } from "@/types";
 
 export const virtualNumberService = {
@@ -48,6 +49,22 @@ export const virtualNumberService = {
   ): Promise<ApiResponse<VNPricing>> {
     return apiGet<VNPricing>(
       `/virtual-numbers/pricing?service_id=${serviceId}&country_id=${countryId}`,
+      { requiresAuth: true }
+    );
+  },
+
+  /**
+   * Search available Telnyx numbers in a country
+   * GET /virtual-numbers/search?country_code=US&limit=10
+   */
+  async searchNumbers(
+    countryCode: string,
+    limit?: number
+  ): Promise<ApiResponse<VNSearchNumber[]>> {
+    const params = new URLSearchParams({ country_code: countryCode });
+    if (limit) params.set("limit", String(limit));
+    return apiGet<VNSearchNumber[]>(
+      `/virtual-numbers/search?${params.toString()}`,
       { requiresAuth: true }
     );
   },

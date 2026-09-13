@@ -790,6 +790,16 @@ export interface VNStats {
   total_spent: number;
 }
 
+export interface VNSearchNumber {
+  phone_number: string;
+  country_code: string;
+  type: string;
+  features: string[];
+  monthly_cost: number | null;
+  upfront_cost: number | null;
+  currency: string;
+}
+
 // Credit Types
 export interface CreditBalance {
   credit_balance: number;
@@ -898,4 +908,50 @@ export interface UserRoleDetail {
     permissions: string[];
   }[];
   direct_permissions: string[];
+}
+
+export interface SupportTicket {
+  id: number;
+  user_id: number;
+  subject: string;
+  message: string;
+  status: 'open' | 'in_progress' | 'waiting_reply' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  category: string | null;
+  ticket_number: string;
+  last_reply_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+  messages?: SupportTicketMessage[];
+}
+
+export interface SupportTicketMessage {
+  id: number;
+  ticket_id: number;
+  user_id: number;
+  message: string;
+  is_admin: boolean;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+  attachments?: SupportTicketAttachment[];
+}
+
+export interface SupportTicketAttachment {
+  id: number;
+  message_id: number;
+  url: string;
+  type: string;
+  name: string;
+  created_at: string;
+}
+
+export interface SupportTicketStats {
+  total: number;
+  open: number;
+  in_progress: number;
+  waiting_reply: number;
+  resolved: number;
+  closed: number;
 }

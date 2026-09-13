@@ -63,6 +63,16 @@ export function useVirtualNumbers() {
     });
   };
 
+  // Search available numbers
+  const useSearchNumbers = (countryCode: string | null) => {
+    return useQuery({
+      queryKey: ["vn-search", countryCode],
+      queryFn: () => virtualNumberService.searchNumbers(countryCode!, 10),
+      select: (res) => (res.success ? res.data : []),
+      enabled: !!countryCode,
+    });
+  };
+
   // Get single number detail
   const useNumberDetail = (id: number | null) => {
     return useQuery({
@@ -83,7 +93,7 @@ export function useVirtualNumbers() {
         toast.success("Virtual number purchased successfully!");
         queryClient.invalidateQueries({ queryKey: ["vn-my-numbers"] });
         queryClient.invalidateQueries({ queryKey: ["vn-stats"] });
-        queryClient.invalidateQueries({ queryKey: ["wallet", "balance"] });
+        queryClient.invalidateQueries({ queryKey: ["credits", "balance"] });
       } else {
         toast.error(res.message || "Failed to purchase number");
       }
@@ -122,6 +132,7 @@ export function useVirtualNumbers() {
     refetchNumbers,
     useCountries,
     usePricing,
+    useSearchNumbers,
     useNumberDetail,
     orderNumber: orderMutation.mutateAsync,
     isOrdering: orderMutation.isPending,
