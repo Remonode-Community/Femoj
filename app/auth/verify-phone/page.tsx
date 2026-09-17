@@ -55,7 +55,10 @@ export default function VerifyPhonePage() {
   // Handle OTP resend timer
   useEffect(() => {
     if (otpResendTimer > 0) {
-      const timer = setTimeout(() => setOtpResendTimer(otpResendTimer - 1), 1000);
+      const timer = setTimeout(
+        () => setOtpResendTimer(otpResendTimer - 1),
+        1000,
+      );
       return () => clearTimeout(timer);
     }
   }, [otpResendTimer]);
@@ -232,7 +235,7 @@ export default function VerifyPhonePage() {
                 disabled={isLoading || !sendOtpForm.formState.isValid}
                 whileHover={{ scale: 0.98 }}
                 whileTap={{ scale: 0.96 }}
-                className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200"
+                className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 cursor-pointer"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -259,7 +262,8 @@ export default function VerifyPhonePage() {
                 Verify Your Phone
               </h1>
               <p className="text-[13.5px] text-[#6b7280]">
-                Enter the {otpMethod === "sms" ? "6-digit" : "5-digit"} code we sent to your{" "}
+                Enter the {otpMethod === "sms" ? "6-digit" : "5-digit"} code we
+                sent to your{" "}
                 {otpMethod === "sms" ? "phone via SMS" : "phone via voice call"}
               </p>
             </div>
@@ -288,7 +292,8 @@ export default function VerifyPhonePage() {
                   placeholder="000000"
                   maxLength={6}
                   className={
-                    inputClass + " text-center tracking-widest font-mono text-lg pl-4"
+                    inputClass +
+                    " text-center tracking-widest font-mono text-lg pl-4"
                   }
                   {...verifyOtpForm.register("otp")}
                 />
@@ -303,12 +308,10 @@ export default function VerifyPhonePage() {
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                disabled={
-                  verifyOtpForm.watch("otp").length < 5 || isLoading
-                }
+                disabled={verifyOtpForm.watch("otp").length < 5 || isLoading}
                 whileHover={{ scale: 0.98 }}
                 whileTap={{ scale: 0.96 }}
-                className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200"
+                className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 cursor-pointer"
               >
                 {isLoading ? "Verifying..." : "Verify Phone"}
               </motion.button>
@@ -325,7 +328,7 @@ export default function VerifyPhonePage() {
                   type="button"
                   onClick={handleResendOTP}
                   disabled={otpResendTimer > 0 || isLoading}
-                  className="text-[13.5px] text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="text-[13.5px] text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
                   {otpResendTimer > 0
                     ? `Resend in ${otpResendTimer}s`
@@ -346,7 +349,7 @@ export default function VerifyPhonePage() {
                     verifyOtpForm.reset();
                   }}
                   disabled={isLoading}
-                  className="text-[13.5px] text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="text-[13.5px] text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
                   Change Method
                 </button>
@@ -358,7 +361,7 @@ export default function VerifyPhonePage() {
                   type="button"
                   onClick={() => router.push("/dashboard")}
                   disabled={isLoading}
-                  className="w-full text-[13.5px] text-[#6b7280] hover:text-[#374151] font-medium py-2.5 rounded-lg hover:bg-[#f9fafb] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-[13.5px] text-[#6b7280] hover:text-[#374151] font-medium py-2.5 rounded-lg hover:bg-[#f9fafb] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Skip for now
                 </button>

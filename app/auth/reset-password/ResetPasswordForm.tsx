@@ -16,7 +16,14 @@ import {
   useForgotPassword,
 } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/auth";
-import { Eye, EyeOff, Lock, AlertCircle, CheckCircle2, Mail } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  AlertCircle,
+  CheckCircle2,
+  Mail,
+} from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -217,7 +224,8 @@ export function ResetPasswordForm() {
                     placeholder="000000"
                     maxLength={6}
                     className={
-                      inputClass + " text-center tracking-widest font-mono text-lg pl-4"
+                      inputClass +
+                      " text-center tracking-widest font-mono text-lg pl-4"
                     }
                     {...otpForm.register("otp")}
                   />
@@ -232,12 +240,10 @@ export function ResetPasswordForm() {
                 {/* Submit Button */}
                 <motion.button
                   type="submit"
-                  disabled={
-                    otpForm.watch("otp").length !== 6 || isLoading
-                  }
+                  disabled={otpForm.watch("otp").length !== 6 || isLoading}
                   whileHover={{ scale: 0.98 }}
                   whileTap={{ scale: 0.96 }}
-                  className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200"
+                  className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 cursor-pointer"
                 >
                   {isLoading ? "Verifying..." : "Verify OTP"}
                 </motion.button>
@@ -250,9 +256,11 @@ export function ResetPasswordForm() {
                       type="button"
                       onClick={handleResendOTP}
                       disabled={resendTimer > 0 || isLoading}
-                      className="text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="text-[#1a3fd4] hover:text-[#1631b6] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
-                      {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend OTP"}
+                      {resendTimer > 0
+                        ? `Resend in ${resendTimer}s`
+                        : "Resend OTP"}
                     </button>
                   </p>
                 </div>
@@ -301,7 +309,7 @@ export function ResetPasswordForm() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#1a3fd4] transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#1a3fd4] transition-colors cursor-pointer"
                     >
                       {showPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -358,8 +366,10 @@ export function ResetPasswordForm() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#1a3fd4] transition-colors"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#1a3fd4] transition-colors cursor-pointer"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -371,7 +381,10 @@ export function ResetPasswordForm() {
                   {passwordForm.formState.errors.password_confirmation && (
                     <div className={errorClass}>
                       <AlertCircle className="w-3.5 h-3.5" />
-                      {passwordForm.formState.errors.password_confirmation.message}
+                      {
+                        passwordForm.formState.errors.password_confirmation
+                          .message
+                      }
                     </div>
                   )}
                 </div>
@@ -379,12 +392,10 @@ export function ResetPasswordForm() {
                 {/* Submit Button */}
                 <motion.button
                   type="submit"
-                  disabled={
-                    !passwordForm.formState.isValid || isLoading
-                  }
+                  disabled={!passwordForm.formState.isValid || isLoading}
                   whileHover={{ scale: 0.98 }}
                   whileTap={{ scale: 0.96 }}
-                  className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200"
+                  className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 cursor-pointer"
                 >
                   {isLoading ? "Resetting..." : "Reset Password"}
                 </motion.button>

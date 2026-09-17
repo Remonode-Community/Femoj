@@ -39,8 +39,13 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const { login: performLogin } = useLogin();
-  const { isLoading, isAuthenticated, error: storeError, user } = useAuthStore();
-  
+  const {
+    isLoading,
+    isAuthenticated,
+    error: storeError,
+    user,
+  } = useAuthStore();
+
   // Track if component mounted - only redirect if already authenticated on mount
   const isInitialMount = useRef(true);
 
@@ -53,7 +58,9 @@ export function LoginForm() {
   // Redirect if already authenticated on initial mount (user was already logged in)
   useEffect(() => {
     if (isAuthenticated && isInitialMount.current) {
-      console.log("[LoginPage] Already authenticated on mount, redirecting to dashboard");
+      console.log(
+        "[LoginPage] Already authenticated on mount, redirecting to dashboard",
+      );
       router.replace("/dashboard");
     }
     isInitialMount.current = false;
@@ -62,18 +69,18 @@ export function LoginForm() {
   const onSubmit = async (data: LoginSchema) => {
     console.log("[LoginPage] Form submitted, calling performLogin");
     const result = await performLogin(data);
-    
+
     if (result.success) {
       console.log("[LoginPage] Login successful, determining redirect");
       toast.success("Welcome back!");
-      
+
       // Get redirect parameter from URL (set by middleware)
       const redirectParam = searchParams?.get("redirect");
       console.log("[LoginPage] Redirect param from URL:", redirectParam);
-      
+
       // Determine redirect destination
       let redirectTo = "/dashboard";
-      
+
       if (redirectParam) {
         // Use the redirect parameter from middleware
         redirectTo = decodeURIComponent(redirectParam);
@@ -85,9 +92,11 @@ export function LoginForm() {
       } else {
         // User needs to verify email
         redirectTo = "/auth/verify-email";
-        console.log("[LoginPage] Email not verified, redirecting to verify-email");
+        console.log(
+          "[LoginPage] Email not verified, redirecting to verify-email",
+        );
       }
-      
+
       console.log("[LoginPage] Final redirect target:", redirectTo);
       console.log("[LoginPage] Calling router.push");
       router.push(redirectTo);
@@ -218,7 +227,7 @@ export function LoginForm() {
             disabled={isLoading || !form.formState.isValid}
             whileHover={{ scale: 0.98 }}
             whileTap={{ scale: 0.96 }}
-            className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200"
+            className="w-full h-11 mt-8 bg-[#1a3fd4] hover:bg-[#1631b6] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-[13.5px] rounded-[10px] transition-all duration-200 cursor-pointer"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
