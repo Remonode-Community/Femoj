@@ -46,7 +46,7 @@ import {
   snapchat,
   payoneer,
   googlePlay,
-  appstore,
+  appStore,
 } from "../public";
 
 // ── TOKENS ───────────────────────────────────────────────────────────────────
@@ -2085,7 +2085,7 @@ function MobileAppPromo() {
                     "0 4px 12px rgba(0,0,0,0.15)";
                 }}
               >
-                <Image src={appstore} alt="App Store" width={22} height={22} />
+                <Image src={appStore} alt="App Store" width={24} height={24} />
                 <div style={{ textAlign: "left", lineHeight: 1.2 }}>
                   <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>
                     Download on

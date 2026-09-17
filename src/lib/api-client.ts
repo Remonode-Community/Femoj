@@ -7,10 +7,10 @@ import type { ApiResponse, ApiErrorResponse } from "@/types";
 import { getAuthorizationHeader } from "./token";
 import { useAuthStore } from "@/store/auth";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.femoj.remonode.com/api/v1";
 
 if (!BASE_URL) {
-  throw new Error("NEXT_PUBLIC_API_BASE_URL environment variable is not set");
+  console.warn("NEXT_PUBLIC_API_BASE_URL environment variable is not set, using default");
 }
 
 interface RequestOptions extends RequestInit {

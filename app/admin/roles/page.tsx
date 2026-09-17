@@ -307,8 +307,8 @@ export default function RolesPage() {
 
       {/* ── Role Modal ──────────────────────────────────────── */}
       {showRoleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-background rounded-lg border border-border shadow-xl w-full max-w-md mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg border border-border shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="text-lg font-semibold">
                 {editingRole ? "Edit Role" : "Create Role"}
@@ -369,8 +369,8 @@ export default function RolesPage() {
 
       {/* ── Permission Modal ────────────────────────────────── */}
       {showPermissionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-background rounded-lg border border-border shadow-xl w-full max-w-sm mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg border border-border shadow-xl w-full max-w-sm mx-4">
             <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="text-lg font-semibold">Create Permission</h2>
               <button

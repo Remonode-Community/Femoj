@@ -1,7 +1,6 @@
 "use client";
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { useWallet } from "@/hooks/useWallet";
 import { useVirtualNumbers } from "@/hooks/useVirtualNumbers";
 import { useCredits } from "@/hooks/useCredits";
 import { motion } from "framer-motion";
@@ -49,36 +48,18 @@ const SERVICE_ICONS: Record<string, string> = {
   amazon: "/amazon.png",
   uber: "/uber.png",
   netflix: "/netflix.png",
-  spotify: "/google.png",
+  spotify: "/spotify.png",
   paypal: "/paypal.png",
   cashapp: "/cashapp.png",
-  wechat: "/wechat.png",
-  line: "/line.png",
   kakaotalk: "/kakao-talk.png",
-  fiverr: "/fiverr.png",
-  upwork: "/upwork.png",
-  freelancer: "/freelancer.png",
-  toptal: "/toptal.png",
-  guru: "/guru.png",
-  peopleperhour: "/peopleperhour.png",
-  twitch: "/twitch.png",
-  zoom: "/zoom.png",
-  slack: "/slack.png",
-  github: "/github.png",
-  dropbox: "/dropbox.png",
-  airbnb: "/airbnb.png",
-  shopify: "/shopify.png",
-  ebay: "/ebay.png",
 };
 
 export default function DashboardPage() {
-  const { balance } = useWallet();
-  const { numbers, stats, numbersLoading, services } = useVirtualNumbers();
   const { creditBalance } = useCredits();
+  const { numbers, stats, numbersLoading, services } = useVirtualNumbers();
 
   const activeNumbers = numbers?.filter((n) => n.status === "active") || [];
   const recentNumbers = activeNumbers.slice(0, 5);
-  const balanceMajor = balance?.balance ?? 0;
 
   return (
     <DashboardLayout>
@@ -100,26 +81,33 @@ export default function DashboardPage() {
             <div className="relative z-10">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <p style={{display:'-webkit-inline-flex'}} className="text-white/80 text-sm mb-1"> <Zap className="w-4 h-4 text-yellow-300" /> Available Credits</p>
-                  <p className="text-3xl md:text-4xl font-semibold mb-2 d-flex items-center gap-2">
-                     {creditBalance.toLocaleString()} 
+                  <p className="text-white/80 text-sm mb-1">
+                    Available Credits
                   </p>
-                  
+                  <p className="text-3xl md:text-4xl font-semibold mb-2">
+                    {creditBalance.toLocaleString()}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-300" />
+                    <span className="text-sm text-white/90">
+                      credits ready to use
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex gap-3">
                   <Link
                     href="/dashboard/numbers?action=buy"
-                    className="inline-flex items-center gap-2 h-10 px-5 text-sm bg-white text-[#1a73e8] hover:bg-white/90 rounded-lg font-medium transition-colors"
+                    className="inline-flex items-center gap-2 h-10 px-4 md:px-5 text-sm bg-white text-[#1a73e8] hover:bg-white/90 rounded-lg font-medium transition-colors whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4" />
                     Buy Number
                   </Link>
                   <Link
                     href="/dashboard/wallet"
-                    className="inline-flex items-center gap-2 h-10 px-5 text-sm bg-white/20 text-white hover:bg-white/30 rounded-lg font-medium transition-colors backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 h-10 px-4 md:px-5 text-sm bg-white/20 text-white hover:bg-white/30 rounded-lg font-medium transition-colors backdrop-blur-sm whitespace-nowrap"
                   >
                     <CreditCard className="w-4 h-4" />
-                    Fund Wallet
+                    Buy Credits
                   </Link>
                 </div>
               </div>
@@ -149,7 +137,7 @@ export default function DashboardPage() {
               value: `₦${Number(stats?.total_spent ?? 0).toLocaleString()}`,
               icon: TrendingUp,
               color: "bg-[#fef7e0] text-[#b06000]",
-              href: "/dashboard/wallet",
+              href: "/dashboard/numbers",
             },
             {
               label: "Credits",

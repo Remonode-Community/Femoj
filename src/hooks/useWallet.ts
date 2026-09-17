@@ -1,130 +1,77 @@
-/**
- * useWallet Hook
- * Custom hook for wallet data fetching using React Query
- */
+"use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
-import { walletService } from "@/services/walletService";
-import { toast } from "sonner";
-import type { WalletTransactionItem } from "@/types";
+import walletService from "@/services/walletService";
+import PaymentService from "@/services/paymentService";
+import type { CreditBundle, CreditPurchaseHistoryItem, Currency } from "@/types";
 
 export function useWallet() {
   const queryClient = useQueryClient();
 
+  // Credit balance
   const {
-    data: balanceData,
+    data: creditBalance = 0,
     isLoading: balanceLoading,
-    error: balanceError,
     refetch: refetchBalance,
   } = useQuery({
-    queryKey: ["wallet", "balance"],
-    queryFn: () => walletService.getBalance(),
-    select: (res) => (res.success ? res.data : null),
+    queryKey: ["credits", "balance"],
+    queryFn: () => walletService.getCreditBalance(),
+    staleTime: 30 * 1000,
   });
 
+  // Credit bundles
   const {
-    data: transactionsResponse,
-    isLoading: transactionsLoading,
-    error: transactionsError,
-  } = useQuery({
-    queryKey: ["wallet", "transactions"],
-    queryFn: () => walletService.getTransactions({ limit: 20 }),
-    select: (res): { transactions: WalletTransactionItem[]; pagination: any } | null => {
-      if (!res.success) return null;
-      const txns: WalletTransactionItem[] = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
-      const pagination = (res as any).pagination || (res.data as any)?.pagination || null;
-      return { transactions: txns, pagination };
-    },
-  });
-
-  const {
-    data: bundlesData,
+    data: bundles = [],
     isLoading: bundlesLoading,
-    error: bundlesError,
   } = useQuery({
     queryKey: ["credit-bundles"],
     queryFn: () => walletService.getBundles(),
-    select: (res) => (res.success ? res.data : []),
+    staleTime: 5 * 60 * 1000,
   });
 
+  // Purchase history
   const {
-    data: purchaseHistory,
+    data: purchaseHistory = [],
     isLoading: historyLoading,
-  } = useQuery({
+  } = useQuery<CreditPurchaseHistoryItem[]>({
     queryKey: ["credit-bundles", "history"],
-    queryFn: () => walletService.getPurchaseHistory(10),
-    select: (res) => (res.success ? res.data : []),
+    queryFn: () => walletService.getPurchaseHistory(20),
+    staleTime: 60 * 1000,
   });
 
+  // Initialize purchase mutation
   const initializePurchaseMutation = useMutation({
-    mutationFn: (payload: { bundle_id: number }) =>
-      walletService.initializePurchase(payload),
-    onSuccess: (res) => {
-      if (res.success && res.data) {
-        toast.success(res.message || "Credits purchased successfully!");
-        queryClient.invalidateQueries({ queryKey: ["wallet", "balance"] });
-        queryClient.invalidateQueries({ queryKey: ["credits", "balance"] });
-        queryClient.invalidateQueries({ queryKey: ["wallet", "transactions"] });
-        queryClient.invalidateQueries({ queryKey: ["credits", "transactions"] });
-      } else {
-        toast.error(res.message || "Failed to purchase credits");
-      }
-    },
-    onError: (error: any) => {
-      toast.error(error?.message || "Failed to purchase credits. Please try again.");
+    mutationFn: (data: { bundle_id: number; currency: Currency }) =>
+      PaymentService.initializeCreditPurchase(data.bundle_id, data.currency),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["credits", "balance"] });
+      queryClient.invalidateQueries({ queryKey: ["credit-bundles", "history"] });
     },
   });
 
+  // Verify purchase mutation
   const verifyPurchaseMutation = useMutation({
-    mutationFn: (payload: { reference: string }) =>
-      walletService.verifyPurchase(payload),
-    onSuccess: (res) => {
-      if (res.success) {
-        toast.success(res.message || "Payment verified successfully!");
-        queryClient.invalidateQueries({ queryKey: ["wallet", "balance"] });
-        queryClient.invalidateQueries({ queryKey: ["wallet", "transactions"] });
-        queryClient.invalidateQueries({ queryKey: ["credit-bundles", "history"] });
-      } else {
-        toast.error(res.message || "Payment verification failed");
-      }
-    },
-    onError: () => {
-      toast.error("Payment verification failed. Please try again.");
+    mutationFn: (reference: string) =>
+      PaymentService.verifyCreditPurchase(reference),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["credits", "balance"] });
+      queryClient.invalidateQueries({ queryKey: ["credit-bundles", "history"] });
     },
   });
-
-  const initializePurchase = useCallback(
-    (bundleId: number) => {
-      initializePurchaseMutation.mutate({
-        bundle_id: bundleId,
-      });
-    },
-    [initializePurchaseMutation]
-  );
-
-  const verifyPurchase = useCallback(
-    async (reference: string) => {
-      return verifyPurchaseMutation.mutateAsync({ reference });
-    },
-    [verifyPurchaseMutation]
-  );
 
   return {
-    balance: balanceData,
-    transactions: transactionsResponse?.transactions || [],
-    pagination: transactionsResponse?.pagination,
-    bundles: bundlesData,
+    creditBalance,
+    bundles,
     purchaseHistory,
-    isLoading: balanceLoading || transactionsLoading || bundlesLoading,
+    isLoading: balanceLoading || bundlesLoading,
     balanceLoading,
-    transactionsLoading,
     bundlesLoading,
     historyLoading,
-    error: balanceError || transactionsError || bundlesError,
-    initializePurchase,
+    initializePurchase: initializePurchaseMutation.mutate,
     isInitializing: initializePurchaseMutation.isPending,
-    verifyPurchase,
+    purchaseError: initializePurchaseMutation.error,
+    purchaseData: initializePurchaseMutation.data,
+    verifyPurchase: verifyPurchaseMutation.mutateAsync,
     isVerifying: verifyPurchaseMutation.isPending,
     refetchBalance,
   };
