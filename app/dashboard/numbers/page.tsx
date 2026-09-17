@@ -57,7 +57,7 @@ const SERVICE_ICONS: Record<string, string> = {
   telegram: "/telegram.png",
   instagram: "/instagram.png",
   twitter: "/twitter.png",
-  facebook: "/meta.png",
+  facebook: "/facebook.png",
   tiktok: "/tiktok.png",
   snapchat: "/snapchat.png",
   tinder: "/tinder.png",
@@ -111,13 +111,15 @@ type Step = "service" | "country" | "confirm" | "success";
 
 export default function NumbersPage() {
   return (
-    <Suspense fallback={
-      <DashboardLayout>
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </DashboardLayout>
-    }>
+    <Suspense
+      fallback={
+        <DashboardLayout>
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </DashboardLayout>
+      }
+    >
       <NumbersContent />
     </Suspense>
   );
@@ -126,24 +128,42 @@ export default function NumbersPage() {
 function NumbersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { services, servicesLoading, useCountries, usePricing, numbers, numbersLoading, orderNumber, isOrdering, stats } = useVirtualNumbers();
+  const {
+    services,
+    servicesLoading,
+    useCountries,
+    usePricing,
+    numbers,
+    numbersLoading,
+    orderNumber,
+    isOrdering,
+    stats,
+  } = useVirtualNumbers();
   const { creditBalance } = useCredits();
 
   const [step, setStep] = useState<Step>("service");
   const [selectedService, setSelectedService] = useState<any>(null);
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
-  const [orderType, setOrderType] = useState<"activation" | "rent">("activation");
+  const [orderType, setOrderType] = useState<"activation" | "rent">(
+    "activation",
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [result, setResult] = useState<any>(null);
 
-  const { data: countries, isLoading: countriesLoading } = useCountries(selectedService?.id || null);
-  const { data: pricing, isLoading: pricingLoading } = usePricing(selectedService?.id || null, selectedCountry?.id || null);
+  const { data: countries, isLoading: countriesLoading } = useCountries(
+    selectedService?.id || null,
+  );
+  const { data: pricing, isLoading: pricingLoading } = usePricing(
+    selectedService?.id || null,
+    selectedCountry?.id || null,
+  );
 
-  const creditPrice = orderType === "activation"
-    ? pricing?.credit_price_activation ?? 0
-    : pricing?.credit_price_rent_30d ?? 0;
+  const creditPrice =
+    orderType === "activation"
+      ? (pricing?.credit_price_activation ?? 0)
+      : (pricing?.credit_price_rent_30d ?? 0);
 
   // Pre-select from URL params
   useEffect(() => {
@@ -158,8 +178,11 @@ function NumbersContent() {
   }, [searchParams, services]);
 
   const filteredServices = (services || []).filter((s) => {
-    const matchesCategory = activeCategory === "all" || s.category === activeCategory;
-    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      activeCategory === "all" || s.category === activeCategory;
+    const matchesSearch = s.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -277,7 +300,10 @@ function NumbersContent() {
               {servicesLoading ? (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                   {[...Array(12)].map((_, i) => (
-                    <div key={i} className="animate-pulse rounded-lg border border-[#e8eaed] bg-white p-4">
+                    <div
+                      key={i}
+                      className="animate-pulse rounded-lg border border-[#e8eaed] bg-white p-4"
+                    >
                       <div className="h-12 w-12 bg-[#f1f3f4] rounded-xl mx-auto mb-3" />
                       <div className="h-3 bg-[#f1f3f4] rounded w-2/3 mx-auto" />
                     </div>
@@ -307,12 +333,17 @@ function NumbersContent() {
                             alt={service.name}
                             className="h-9 w-9 object-contain"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+                              (e.target as HTMLImageElement).style.display =
+                                "none";
+                              (
+                                e.target as HTMLImageElement
+                              ).nextElementSibling?.classList.remove("hidden");
                             }}
                           />
                         ) : null}
-                        <Smartphone className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[service.slug] ? "hidden" : ""}`} />
+                        <Smartphone
+                          className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[service.slug] ? "hidden" : ""}`}
+                        />
                       </div>
                       <span className="text-xs font-medium text-[#202124] text-center leading-tight">
                         {service.name}
@@ -351,11 +382,15 @@ function NumbersContent() {
                       className="h-9 w-9 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none";
-                        (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+                        (
+                          e.target as HTMLImageElement
+                        ).nextElementSibling?.classList.remove("hidden");
                       }}
                     />
                   ) : null}
-                  <Smartphone className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[selectedService?.slug] ? "hidden" : ""}`} />
+                  <Smartphone
+                    className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[selectedService?.slug] ? "hidden" : ""}`}
+                  />
                   <div>
                     <h1 className="text-[22px] font-medium text-[#202124]">
                       {selectedService?.name}
@@ -370,7 +405,10 @@ function NumbersContent() {
               {countriesLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {[...Array(6)].map((_, i) => (
-                    <div key={i} className="animate-pulse rounded-lg border border-[#e8eaed] bg-white p-4">
+                    <div
+                      key={i}
+                      className="animate-pulse rounded-lg border border-[#e8eaed] bg-white p-4"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-[#f1f3f4] rounded-lg" />
                         <div className="flex-1">
@@ -407,12 +445,18 @@ function NumbersContent() {
                       {country.pivot && (
                         <div className="text-right shrink-0">
                           <p className="text-sm font-semibold text-[#202124]">
-                            ₦{Number(country.pivot.activation_price).toLocaleString()}
+                            ₦
+                            {Number(
+                              country.pivot.activation_price,
+                            ).toLocaleString()}
                             <span className="text-xs text-[#5f6368] block">
-                              ({country.pivot.credit_price_activation ?? 0} credits)
+                              ({country.pivot.credit_price_activation ?? 0}{" "}
+                              credits)
                             </span>
                           </p>
-                          <p className="text-[10px] text-[#9aa0a6]">activation</p>
+                          <p className="text-[10px] text-[#9aa0a6]">
+                            activation
+                          </p>
                         </div>
                       )}
                       <ChevronRight className="w-4 h-4 text-[#9aa0a6] shrink-0" />
@@ -481,8 +525,12 @@ function NumbersContent() {
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <Zap className={`w-4 h-4 ${orderType === "activation" ? "text-[#1a73e8]" : "text-[#5f6368]"}`} />
-                        <span className="text-sm font-medium text-[#202124]">Activation</span>
+                        <Zap
+                          className={`w-4 h-4 ${orderType === "activation" ? "text-[#1a73e8]" : "text-[#5f6368]"}`}
+                        />
+                        <span className="text-sm font-medium text-[#202124]">
+                          Activation
+                        </span>
                       </div>
                       <p className="text-xs text-[#5f6368] mb-2">
                         20 minutes access. One-time use.
@@ -491,7 +539,10 @@ function NumbersContent() {
                         {pricing?.credit_price_activation ?? 0} credits
                       </p>
                       <p className="text-xs text-[#5f6368]">
-                        ₦{Number(pricing?.activation_price ?? 0).toLocaleString()}
+                        ₦
+                        {Number(
+                          pricing?.activation_price ?? 0,
+                        ).toLocaleString()}
                       </p>
                     </button>
 
@@ -504,8 +555,12 @@ function NumbersContent() {
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <Clock className={`w-4 h-4 ${orderType === "rent" ? "text-[#1a73e8]" : "text-[#5f6368]"}`} />
-                        <span className="text-sm font-medium text-[#202124]">Rent (30 days)</span>
+                        <Clock
+                          className={`w-4 h-4 ${orderType === "rent" ? "text-[#1a73e8]" : "text-[#5f6368]"}`}
+                        />
+                        <span className="text-sm font-medium text-[#202124]">
+                          Rent (30 days)
+                        </span>
                       </div>
                       <p className="text-xs text-[#5f6368] mb-2">
                         Unlimited SMS for 30 days.
@@ -540,11 +595,7 @@ function NumbersContent() {
 
               <button
                 onClick={handleOrder}
-                disabled={
-                  isOrdering ||
-                  !pricing ||
-                  creditBalance < creditPrice
-                }
+                disabled={isOrdering || !pricing || creditBalance < creditPrice}
                 className="w-full h-12 flex items-center justify-center gap-2 bg-[#1a73e8] hover:bg-[#1765cc] disabled:bg-[#9aa0a6] disabled:cursor-not-allowed text-white rounded-lg font-medium text-sm transition-colors"
               >
                 {isOrdering ? (
@@ -586,7 +637,9 @@ function NumbersContent() {
                 {/* Number Display */}
                 <div className="text-center mb-6">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-4xl">{result.country.flag_emoji}</span>
+                    <span className="text-4xl">
+                      {result.country.flag_emoji}
+                    </span>
                     {SERVICE_ICONS[result.service?.slug] ? (
                       <img
                         src={SERVICE_ICONS[result.service?.slug]}
@@ -594,11 +647,15 @@ function NumbersContent() {
                         className="h-10 w-10 object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = "none";
-                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+                          (
+                            e.target as HTMLImageElement
+                          ).nextElementSibling?.classList.remove("hidden");
                         }}
                       />
                     ) : null}
-                    <Smartphone className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[result.service?.slug] ? "hidden" : ""}`} />
+                    <Smartphone
+                      className={`w-8 h-8 text-[#9aa0a6] ${SERVICE_ICONS[result.service?.slug] ? "hidden" : ""}`}
+                    />
                   </div>
                   <p className="text-2xl font-mono font-semibold text-[#202124] mb-1">
                     {result.number}
@@ -698,7 +755,10 @@ function NumbersContent() {
               {numbersLoading ? (
                 <div className="space-y-3">
                   {[1, 2].map((i) => (
-                    <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-lg border border-[#e8eaed]">
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center gap-3 p-3 rounded-lg border border-[#e8eaed]"
+                    >
                       <div className="h-10 w-10 bg-[#f1f3f4] rounded-lg" />
                       <div className="flex-1">
                         <div className="h-4 bg-[#f1f3f4] rounded w-1/3 mb-2" />
@@ -744,8 +804,8 @@ function NumbersContent() {
                             number.status === "active"
                               ? "bg-[#e6f4ea] text-[#137333]"
                               : number.status === "expired"
-                              ? "bg-[#fef7e0] text-[#b06000]"
-                              : "bg-[#f1f3f4] text-[#5f6368]"
+                                ? "bg-[#fef7e0] text-[#b06000]"
+                                : "bg-[#f1f3f4] text-[#5f6368]"
                           }`}
                         >
                           {number.status}
@@ -772,7 +832,15 @@ function NumbersContent() {
 // Zap icon component
 function Zap({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
   );
